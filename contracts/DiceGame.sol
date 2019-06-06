@@ -39,7 +39,7 @@ contract DiceGame is IGame {
     }
 
     /* Events */
-    event CommitProof(uint round, bytes32 channelID, address initiator, address acceptor);
+    event CommitProof(bytes32 indexed gameID, address indexed initiator, address indexed acceptor);
 
     /* External Functions */
     function getResult(bytes32 gameID, address gamer1, address gamer2) external returns(uint, uint, uint) {
@@ -91,7 +91,7 @@ contract DiceGame is IGame {
         result.aStake = aStake;
         result.betMask = betMask;
         result.modulo = modulo;
-        emit CommitProof(round, channelID, initiator, acceptor);
+        emit CommitProof(gameID, initiator, acceptor);
     }
 
     /* Internal Functions */

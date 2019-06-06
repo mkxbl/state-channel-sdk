@@ -51,7 +51,7 @@ contract EthChannel {
 
     // decode rlp-encoded data to struct
     struct SettleData {
-        address  payable peer1;
+        address payable peer1;
         uint transferAmount1;
         uint lockAmount1;
         uint lockNonce1;
@@ -87,19 +87,19 @@ contract EthChannel {
     }
 
     /* Events */
-    event OpenChannel(address peer1, address peer2, bytes32 channelID, uint settleWindow, uint peer1DepositValue);
+    event OpenChannel(address indexed peer1, address indexed peer2, bytes32 channelID, uint settleWindow, uint peer1DepositValue);
 
-    event DepositChannel(bytes32 channelID, address peer, uint depositValue, uint totalDepositValue);
+    event DepositChannel(bytes32 indexed channelID, address indexed peer, uint depositValue, uint totalDepositValue);
 
-    event CSettleChannel(bytes32 channelID, address payable peer1, uint balance1, address payable peer2, uint balance2);
+    event CSettleChannel(bytes32 indexed channelID, address payable peer1, uint balance1, address payable peer2, uint balance2);
 
-    event FCloseChannel(bytes32 channelID, address closer, bytes32 balanceHash, uint nonce);
+    event FCloseChannel(bytes32 indexed channelID, address closer, bytes32 balanceHash, uint nonce);
 
-    event PartnerCommitProof(bytes32 channelID, address commiter, bytes32 balanceHash, uint nonce);
+    event PartnerCommitProof(bytes32 indexed channelID, address commiter, bytes32 balanceHash, uint nonce);
 
-    event FSettleChannel(bytes32 channelID, address peer1, uint balance1, address peer2, uint balance2, bytes32 lockID);
+    event FSettleChannel(bytes32 indexed channelID, address peer1, uint balance1, address peer2, uint balance2, bytes32 lockID);
 
-    event Unlock(bytes32 lockID, address peer1, uint balance1, address peer2, uint balance2);
+    event Unlock(bytes32 indexed lockID, address peer1, uint balance1, address peer2, uint balance2);
 
     /* Public Functions */
     /**
@@ -203,8 +203,9 @@ contract EthChannel {
         require(channel.status == ChannelStatus.Closed, "channel should be closed");
         require(channel.settleBlock >= block.number, "commit block expired");
         verifyBalanceProof(channelID, balanceHash, nonce, cSig, closer);
-        bytes32 hash = keccak256(abi.encodePacked(channelID, balanceHash, nonce, cSig));
-        require(hash.recover(pSig) == partner, "invalid partner signature");
+        verifyBalanceProof(channelID, balanceHash, nonce, pSig, partner);
+        // bytes32 hash = keccak256(abi.encodePacked(channelID, balanceHash, nonce, cSig));
+        // require(hash.recover(pSig) == partner, "invalid partner signature");
         Peer storage closerState = channel.peer[closer];
         require(closerState.isCloser, "invalid closer");
         require(closerState.nonce < nonce, "invalid nonce");
