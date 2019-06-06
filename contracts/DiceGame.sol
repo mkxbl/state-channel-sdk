@@ -47,10 +47,15 @@ contract DiceGame is IGame {
         if(result.status == 0) {
             return (0, 0, 0);
         }
+        // 0=nobody commit random proof, refund lock value
+        // 1=initiator did not reveal pre-image, winner is acceptor
+        // 2=get random succeed
         uint status;
+        // if status == 2, use random
         bytes32 random;
+        // if status == 1, use winner
         address winner;
-        (status, random, winner) = randomContract.getRandom(gameID);
+        (status, random, winner) = randomContract.getRandom(gameID, result.initiator, result.acceptor);
         if(status == 0) {
             return (0, 0, 0);
         } else if(status == 2) {
