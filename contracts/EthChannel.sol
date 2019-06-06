@@ -9,7 +9,6 @@ import "./lib/IGame.sol";
  * @notice Payment channel of dice game
  */
 contract EthChannel {
-    // using RLPDecoder for uint;
     using RLPDecoder for RLPDecoder.RLPItem;
     using RLPDecoder for bytes;
     using ECDSA for bytes32;
@@ -204,8 +203,6 @@ contract EthChannel {
         require(channel.settleBlock >= block.number, "commit block expired");
         verifyBalanceProof(channelID, balanceHash, nonce, cSig, closer);
         verifyBalanceProof(channelID, balanceHash, nonce, pSig, partner);
-        // bytes32 hash = keccak256(abi.encodePacked(channelID, balanceHash, nonce, cSig));
-        // require(hash.recover(pSig) == partner, "invalid partner signature");
         Peer storage closerState = channel.peer[closer];
         require(closerState.isCloser, "invalid closer");
         require(closerState.nonce < nonce, "invalid nonce");
@@ -257,6 +254,12 @@ contract EthChannel {
         emit FSettleChannel(channelID, s.peer1, balance1, s.peer2, balance2, lockID);
     }
 
+    /**
+     * @notice Withdraw locked value if proof committed in game contract
+     * @param lockID generated after force settle channel
+     * @param peer1 address of one peer
+     * @param peer2 address of the other peer
+     */
     function unlock(bytes32 lockID, address payable peer1, address payable peer2) public {
         // balance of peer1 and peer2, determined by game result, to distribute lock amount
         uint balance1;

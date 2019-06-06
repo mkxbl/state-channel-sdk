@@ -42,6 +42,13 @@ contract DiceGame is IGame {
     event CommitProof(bytes32 indexed gameID, address indexed initiator, address indexed acceptor);
 
     /* External Functions */
+    /**
+     * @notice Called by payment channel to distribute lock value
+     * @param gameID id of game, the same to lockID
+     * @param gamer1 address of a gamer
+     * @param gamer2 address of the other gamer
+     * @return (status, balance of gamer1, balance of gamer2)
+     */
     function getResult(bytes32 gameID, address gamer1, address gamer2) external returns(uint, uint, uint) {
         Result storage result = resultMap[gameID];
         if(result.status == 0) {

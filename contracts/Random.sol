@@ -13,15 +13,19 @@ contract Random is IRandom {
 
     uint settleWindow;
     struct Result {
+        // 0 = nobody commit proof
+        // 1 = acceptor had committed proof, waiting for initiator to reveal pre-image
+        // 2 = all commit proof, random was generated sucessfully
         uint status;
         address initiator;
         address acceptor;
         bytes32 iRandomHash;
         bytes32 aRandom;
         bytes32 random;
+        // After acceptor had committed proof, this value represents the block number before which initiator should reveal pre-image
         uint settleBlock;
     }
-
+    // randomID => result
     mapping(bytes32 => Result) public resultMap;
 
     /* Constuctor */
@@ -37,6 +41,13 @@ contract Random is IRandom {
     event InitiatorReveal(bytes32 indexed randomID, bytes32 random);
 
     /* External Functions */
+    /**
+     * @notice Called by other contracts to get random
+     * @param randomID id of random generation
+     * @param initiator address of peer who initiate  random generation
+     * @param acceptor address of the other peer who accept random generation
+     * @return (status, random, winner if random generation failed)
+     */
     function getRandom(bytes32 randomID, address initiator, address acceptor) external returns(uint, bytes32, address){
         Result storage result = resultMap[randomID];
         if(result.status == 0) {

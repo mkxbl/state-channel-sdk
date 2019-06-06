@@ -1,3 +1,15 @@
+// This is a very simple integration test because the time limits
+// The code test a common process of payment channel
+// 1. Open channel
+// 2. Deposit Channel
+// 3. Transfer value off-chain
+// 4. Dispute off-chain
+// 5. One peer go on-chain, force close channel
+// 6. partner commit proof on-chain
+// 7. waiting settle window over
+// 8. settle channel on-chain
+// Need improvement in the future
+
 const EthChannel = artifacts.require('EthChannel');
 const testCase = require('./cases/transfer.json');
 const signer = require('./helper/signer');
@@ -17,6 +29,7 @@ contract('EthChannel', async accounts => {
 
     it('case1', async() => {
         let case1 = testCase[0];
+        // peer1 open channel
         let res = await myInstance.openChannel(peer1, peer2, 6, {from: peer1, value: case1[0]});
         channelID = res.receipt.logs[0].args[2];
         let nonce1 = 1;
