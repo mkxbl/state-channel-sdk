@@ -26,11 +26,8 @@ contract EthChannel {
         uint nonce;
     }
 
-    enum ChannelStatus { Uninitialized, Open, Closed }
-
+    enum ChannelStatus {Uninitialized, Open, Closed}
     struct Channel {
-        // 1 = open, 2 = closed
-        // 0 = non-existent or settled
         ChannelStatus status;
         // peer address => peer state
         mapping(address => Peer) peer;
@@ -263,15 +260,17 @@ contract EthChannel {
         // balance of peer1 and peer2, determined by game result, to distribute lock amount
         uint balance1;
         uint balance2;
-        (balance1, balance2) = game.getResult(lockID);
-        // distributed amount should not exceed lock amount in channel
-        uint limit1;
-        uint limit2;
-        limit1 = lockMap[lockID][peer2];
-        limit2 = lockMap[lockID][peer1];
+        // 0=nobody commit game proof, refund lock value
+        // 1=commit game proof succeed, distribute value with game result
+        uint status;
+        (status, balance1, balance2) = game.getResult(lockID, peer1, peer2);
+        if(status == 0) {
+            balance1 = lockMap[lockID][peer1];
+            balance2 = lockMap[lockID][peer2];
+        } else {
+            require(balance1.safeAdd(balance2) <= lockMap[lockID][peer1].safeAdd(lockMap[lockID][peer2]), "insufficient funds");
+        }
 
-        balance1 = balance1 > limit1 ? limit1 : balance1;
-        balance2 = balance2 > limit2 ? limit2 : balance2;
         delete lockMap[lockID][peer1];
         delete lockMap[lockID][peer2];
         if(balance1 > 0) {

@@ -1,7 +1,118 @@
 pragma solidity ^0.5.0;
 
 import "./lib/IGame.sol";
+import "./lib/IRandom.sol";
+import "./lib/ECDSA.sol";
+import "./lib/SafeMath.sol";
 
+/**
+ * @notice Support mainstream gaming: flip-coin, dice, two-dice, etheroll
+ */
 contract DiceGame is IGame {
-    
+    using ECDSA for bytes32;
+    using SafeMath for uint;
+
+    // max bits of betMask when playing flip-coin, dice, two-dice
+    uint256 constant MAX_MASK_MODULO = 36;
+
+    /* States */
+    IRandom public randomContract;
+
+    struct Result {
+        // 0=nobody commit game proof, refund lock value
+        // 1=commit game proof succeed, distribute value with game result
+        uint status;
+        address initiator;
+        address acceptor;
+        uint iStake;
+        uint aStake;
+        uint betMask;
+        uint modulo;
+    }
+
+    // gameID => game result
+    mapping(bytes32 => Result) public resultMap;
+
+    /* Constructor */
+    constructor(address _randomContract) public {
+        randomContract = IRandom(_randomContract);
+    }
+
+    /* Events */
+    event CommitProof(uint round, bytes32 channelID, address initiator, address acceptor);
+
+    /* External Functions */
+    function getResult(bytes32 gameID, address gamer1, address gamer2) external returns(uint, uint, uint) {
+        Result storage result = resultMap[gameID];
+        if(result.status == 0) {
+            return (0, 0, 0);
+        }
+        uint status;
+        bytes32 random;
+        address winner;
+        (status, random, winner) = randomContract.getRandom(gameID);
+        if(status == 0) {
+            return (0, 0, 0);
+        } else if(status == 2) {
+            winner = isInitiatorWin(result.betMask, result.modulo, random) ? result.initiator : result.acceptor;
+        }
+        return gamer1 == winner ? (1, result.iStake.safeAdd(result.aStake), uint(0)) : (1, uint(0), result.iStake.safeAdd(result.aStake));
+    }
+
+    /* Public Functions */
+    /**
+     * @notice Commit game proof when disputing off-chain
+     * @param round game round
+     * @param channelID id of channel two gamers in
+     * @param initiator address of one peer who trigger game
+     * @param acceptor address of the other peer who accept game
+     * @param iStake bet stake of initiator, which locked in channel
+     * @param aStake bet stake of acceptor, which locked in channel
+     * @param betMask outcome initiator bet on, and acceptor bet on the other side automatic
+     * @param modulo which kind of game: 1=flip-coin, 6=dice, 36=two-dice, 100=etheroll
+     * @param iSig signature of initiator
+     * @param aSig signature of acceptor
+     */
+    function commitProof(uint round, bytes32 channelID, address initiator, address acceptor, uint256 iStake, uint256 aStake, uint256 betMask, uint256 modulo, bytes memory iSig, bytes memory aSig) public {
+        bytes32 hash = keccak256(abi.encodePacked(round, channelID, initiator, acceptor, iStake, aStake, betMask, modulo));
+        require(hash.recover(iSig) == initiator, "invalid signature of initiator");
+        require(hash.recover(aSig) == acceptor, "invalid signature of acceptor");
+        bytes32 gameID = keccak256(abi.encodePacked(channelID, getPeersHash(initiator, acceptor), round));
+        Result storage result = resultMap[gameID];
+        result.status = 1;
+        result.initiator = initiator;
+        result.acceptor = acceptor;
+        result.iStake = iStake;
+        result.aStake = aStake;
+        result.betMask = betMask;
+        result.modulo = modulo;
+        emit CommitProof(round, channelID, initiator, acceptor);
+    }
+
+    /* Internal Functions */
+    function isInitiatorWin(uint256 betMask, uint256 modulo, bytes32 random) internal returns(bool) {
+        uint256 dice = uint256(random) % modulo;
+        if (modulo <= MAX_MASK_MODULO) {
+            if (((2 ** dice) & uint40(betMask)) != 0) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            if (dice < betMask) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    function getPeersHash(address peer1, address peer2) public pure returns (bytes32) {
+        require(peer1 != address(0x0) && peer2 != address(0x0) && peer1 != peer2, "invalid peer address");
+        if (peer1 < peer2) {
+            return keccak256(abi.encodePacked(peer1, peer2));
+        } else {
+            return keccak256(abi.encodePacked(peer2, peer1));
+        }
+    }
 }
