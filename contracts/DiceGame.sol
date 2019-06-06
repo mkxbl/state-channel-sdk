@@ -105,17 +105,9 @@ contract DiceGame is IGame {
     function isInitiatorWin(uint256 betMask, uint256 modulo, bytes32 random) internal returns(bool) {
         uint256 dice = uint256(random) % modulo;
         if (modulo <= MAX_MASK_MODULO) {
-            if (((2 ** dice) & uint40(betMask)) != 0) {
-                return true;
-            } else {
-                return false;
-            }
+            return ((2 ** dice) & uint40(betMask)) != 0 ? true : false;
         } else {
-            if (dice < betMask) {
-                return true;
-            } else {
-                return false;
-            }
+            return dice < betMask ? true : false;
         }
     }
 
