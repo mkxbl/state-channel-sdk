@@ -122,6 +122,7 @@ contract EthChannel {
         peer1State.deposit = msg.value;
         emit OpenChannel(peer1, peer2, channelID, settleWindow, msg.value);
     }
+
     /**
      * @notice Can be called by anyone
      * @param id channel id
@@ -133,6 +134,7 @@ contract EthChannel {
         peerState.deposit = peerState.deposit.safeAdd(msg.value);
         emit DepositChannel(id, peer, msg.value, peerState.deposit);
     }
+
     /**
      * @notice Cooperative settle channel
      * @param peer1 one peer of channel
@@ -335,6 +337,7 @@ contract EthChannel {
         lockMap[_lockID][peer1] = _lockAmount1;
         lockMap[_lockID][peer2] = _lockAmount2;
     }
+    
     /**
      * @notice Calculate amount of value settled to each peer
      * @param aBalance1 available balance of peer1

@@ -10,7 +10,6 @@ contract Random is IRandom {
     using ECDSA for bytes32;
 
     /* States */
-
     uint settleWindow;
     struct Result {
         // 0 = nobody commit proof
@@ -81,6 +80,7 @@ contract Random is IRandom {
         result.random = keccak256(abi.encodePacked(iRandom, aRandom));
         emit InitiatorCommitProof(randomID, initiator, acceptor, result.random);
     }
+    
     /**
      * @notice Commit proof to generate random on-chain when dispute off-chain
      * @param randomID id of this random round

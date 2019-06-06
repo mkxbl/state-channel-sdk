@@ -1,4 +1,4 @@
-# Dice game using layer2-stateChannel (work in progress...) 
+# Dice game using layer2 stateChannel (WIP) 
 
 - contract finished
 - test in progress
