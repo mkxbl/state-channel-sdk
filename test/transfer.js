@@ -3,7 +3,7 @@
 // 1. Open channel
 // 2. Deposit Channel
 // 3. Transfer value off-chain
-// 4. Dispute off-chain
+// 4. Dispute off-chain balance
 // 5. One peer go on-chain, force close channel
 // 6. partner commit proof on-chain
 // 7. waiting settle window over
