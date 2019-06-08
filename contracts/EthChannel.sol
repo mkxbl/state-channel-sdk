@@ -191,7 +191,8 @@ contract EthChannel {
 
     /**
      * @notice Partner commit balance proof, received from channel-closer, after channel closed
-     * @param closer who had force closed channel
+     * @param partner address of partner, who commit proof
+     * @param closer address of closer, who had force closed channel before
      * @param balanceHash keccak256(transferAmount, lockAmount, lockNonce), received from closer
      * @param nonce strictly monotonic value used to order transfers
      * @param cSig signature of transfer proof, signed by closers
@@ -337,7 +338,7 @@ contract EthChannel {
         lockMap[_lockID][peer1] = _lockAmount1;
         lockMap[_lockID][peer2] = _lockAmount2;
     }
-    
+
     /**
      * @notice Calculate amount of value settled to each peer
      * @param aBalance1 available balance of peer1
