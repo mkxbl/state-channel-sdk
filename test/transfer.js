@@ -1,11 +1,11 @@
 // This is a very simple integration test because the time limits
 // The code test a common process of payment channel
-// 1. Open channel
-// 2. Deposit Channel
-// 3. Transfer value off-chain
-// 4. Dispute off-chain balance
-// 5. One peer go on-chain, force close channel
-// 6. partner commit proof on-chain
+// 1. Peer1 Open channel with peer2
+// 2. Peer1 transfer value to peer2 off-chain
+// 3. Peer2 deposit value in channel
+// 4. Peer2 transfer value to peer1 off-chain
+// 5. Arbitration on-channel, peer1 force close channel
+// 6. Peer2 commit proof on-chain
 // 7. waiting settle window over
 // 8. settle channel on-chain
 // Need improvement in the future
