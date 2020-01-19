@@ -3,10 +3,10 @@ pragma solidity ^0.5.0;
 import "./lib/RLPDecoder.sol";
 import "./lib/ECDSA.sol";
 import "./lib/SafeMath.sol";
-import "./lib/IGame.sol";
+import "./AppInterface.sol";
 
 /**
- * @notice Payment channel of dice game
+ * @notice State channel of Ethereum
  */
 contract EthChannel {
     using RLPDecoder for RLPDecoder.RLPItem;
@@ -15,7 +15,7 @@ contract EthChannel {
     using SafeMath for uint;
 
     /* States */
-    IGame public game;
+    AppInterface public game;
     // peer state
     struct Peer {
         uint deposit;
@@ -64,7 +64,7 @@ contract EthChannel {
     constructor (address _game, uint _settleWindowMin, uint _settleWindowMax) public {
         require(_settleWindowMin > 0, "invalid settle window min");
         require(_settleWindowMin < _settleWindowMax, "settle window max should be greater than settle window min");
-        game = IGame(_game);
+        game = AppInterface(_game);
         settleWindowMin = _settleWindowMin;
         settleWindowMax = _settleWindowMax;
     }

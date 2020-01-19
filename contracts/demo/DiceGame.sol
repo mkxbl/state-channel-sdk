@@ -1,14 +1,14 @@
 pragma solidity ^0.5.0;
 
-import "./lib/IGame.sol";
-import "./lib/IRandom.sol";
-import "./lib/ECDSA.sol";
-import "./lib/SafeMath.sol";
+import "../AppInterface.sol";
+import "./IRandom.sol";
+import "../lib/ECDSA.sol";
+import "../lib/SafeMath.sol";
 
 /**
  * @notice Support mainstream gaming: flip-coin, dice, two-dice, etheroll
  */
-contract DiceGame is IGame {
+contract DiceGame is AppInterface {
     using ECDSA for bytes32;
     using SafeMath for uint;
 

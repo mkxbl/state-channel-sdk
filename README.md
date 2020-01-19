@@ -1,23 +1,47 @@
-# stateChannel-diceGame contract (WIP) 
+# State-Channel SDK of Ethereum 
 
-Contracts of state channel, support payment and dice game:
+The sdk is a contract framework for building state-channel application. Using these components and primitives, a decentralized application can be built with high performance without losing the trustless core of blockchain system.
 
-- payment: transfer value off-chain using secure, efficient and low-cost channel
-- dice game: dApp based on state channel, including a off-chain random generation algorithm
+## State-Channel Contract
 
-## Payment
+### Interface
 
-Simplified process: 
+```solidity
+// Open a channel of peer1 and peer2, peer1 deposit at the same time
+function openChannel(address peer1, address peer2, uint256 settleWindow );
 
-1. open channel on-chain
-2. send balance proof off-chain
-3. commit balance proof and settle channel
+// Deposit token into channel
+function depositChannel(bytes32 id, address peer);
 
-## Dice game 
+// Cooperative settle channel
+function cSettleChannel(address payable peer1, uint balance1, address payable peer2, uint balance2, bytes memory sig1, bytes memory sig2);
 
-Support mainstream gaming: flip-coin, dice, two-dice, etheroll
+// Force close channel, while disputing in off-chain status
+function fCloseChannel(address partner, bytes32 balanceHash, uint nonce, bytes memory pSig);
 
-Off-chain random generation algorithm:
+// Commit off-chain proof to blockchain for arbitration
+function partnerCommitProof(address partner, address closer, bytes32 balanceHash, uint nonce, bytes memory cSig, bytes memory pSig);
+
+// Settle channel to get current token, the remaining token waiting for arbitration
+function fSettleChannel(bytes memory data);
+
+// Unlock would call application to get arbitration result, then distribute token
+function unlock(bytes32 lockID, address payable peer1, address payable peer2);
+```
+
+## Application Interface
+State-Channel contract using the interface to interact with application, that is to say, your decentralized application should implement this to acquire trustless ability.
+
+For now, there is just `getResult` method, which gets arbitration result from your application.
+
+```solidity
+interface AppInterface {
+    function getResult(bytes32, address, address) external returns(uint, uint, uint);
+}
+```
+
+## Demo
+A dice game supports mainstream gaming: flip-coin、dice、two-dice、etheroll, which including a off-chain random generation algorithm:
 
 ![Figure 1.](docs/random.png)
 

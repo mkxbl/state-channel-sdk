@@ -1,7 +1,7 @@
 pragma solidity ^0.5.0;
 
-import "./lib/IRandom.sol";
-import "./lib/ECDSA.sol";
+import "./IRandom.sol";
+import "../lib/ECDSA.sol";
 
 /**
  * @notice Off-chain random generate algorithm
