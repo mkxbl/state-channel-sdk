@@ -1,5 +1,7 @@
 # State-Channel SDK of Ethereum 
 
+![logo](docs/logo.png)
+
 The sdk is a contract framework for building state-channel application. Using these components and primitives, a decentralized application can be built with high performance without losing the trustless core of blockchain system.
 
 ## State-Channel Contract
@@ -35,8 +37,16 @@ State-Channel contract using the interface to interact with application, that is
 For now, there is just `getResult` method, which gets arbitration result from your application.
 
 ```solidity
+/**
+ * @param lockID generated in step fSettleChannel
+ * @param pee1 participant in the state-channel
+ * @param pee2 the other participant in the state-channel
+ * @return status arbitrate status in application
+ * @return balance1 distribute value of peer1
+ * @return balance2 distribute value of peer2
+ */
 interface AppInterface {
-    function getResult(bytes32, address, address) external returns(uint, uint, uint);
+    function getResult(bytes32 lockID, address peer1, address peer2) external returns(uint status, uint balance1, uint balance2);
 }
 ```
 
